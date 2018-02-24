@@ -1,0 +1,31 @@
+version: '2'
+services:
+  web-glpi:  
+    image: alyssontkd/ambiente-glpi
+    container_name: 'glpiv1.0'
+    ports:
+     - "80:80"    
+    volumes:
+     - /var/www/docker/glpi:/var/www/html/dev.glpi.com.br
+     - /var/www/docker/log/apache2/glpi:/var/log/apache2
+    environment:
+     - APPLICATION_ENV=development
+    links:
+     - database-glpi
+
+  database-glpi:
+    image: mysql:5.7
+    container_name: 'database-mysql-glpi'
+    command: mysqld --sql_mode=""
+    expose:
+        - "3306"
+    ports:
+        - "3306:3306"
+    volumes:        
+        - /var/www/database/mysql/data:/var/lib/mysql
+        - /var/www/database/mysql/log:/var/log/
+    environment:
+        MYSQL_ROOT_PASSWORD: 12345678
+        MYSQL_USER: usr_aplicacao
+        MYSQL_PASSWORD: 12345678
+        MYSQL_DATABASE: glpi
