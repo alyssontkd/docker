@@ -1,0 +1,52 @@
+version: '3.3'
+
+services:
+   database_poupex:
+     build: ./conf_db/
+     image: alyssontkd/mysql:5.7
+     container_name: 'database-mysql-poupex'
+     #image: mariadb:latest
+     volumes:
+        - /var/docker/poupex/database/mysql/conf.d:/etc/mysql/conf.d
+        - /var/docker/poupex/database/mysql/mysql.conf.d:/etc/mysql/mysql.conf.d
+        - /var/docker/poupex/database/mysql/data:/var/lib/mysql
+        - /var/docker/poupex/database/mysql/log:/var/log/
+     #restart: always
+     command: mysqld --sql_mode=""
+     expose:
+        - "3306"
+     ports:
+        - "3308:3306"
+     environment:
+       MYSQL_ROOT_PASSWORD: mysql12345678
+       MYSQL_DATABASE: bdpoupex_wordpress
+       MYSQL_USER: user_poupex
+       MYSQL_PASSWORD: mysql12345678
+     networks:
+        - wordpress-poupex-network
+        
+   wordpress_poupex:
+     depends_on:
+       - database_poupex
+     image: wordpress:latest
+     container_name: 'wordpress-poupex'
+     ports:
+       - "8002:80"
+       - "8444:443"
+       #- "80:80"
+     #restart: always
+     volumes:
+       - /var/docker/poupex/wordpress_poupex/wp-content/:/var/www/html/wp-content/
+       - /var/docker/poupex/wordpress_poupex/logs/php/:/var/log/php/
+     environment:
+        VIRTUAL_HOST: app2.acthosti.com.br
+        VIRTUAL_PORT: 8002
+        WORDPRESS_DB_HOST: database-mysql-poupex
+        WORDPRESS_DB_USER: root
+        WORDPRESS_DB_PASSWORD: mysql12345678
+        WORDPRESS_DB_NAME: bdpoupex_wordpress
+     networks:
+        - wordpress-poupex-network
+        
+networks:
+  wordpress-poupex-network:

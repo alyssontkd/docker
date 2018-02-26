@@ -1,0 +1,52 @@
+version: '3.3'
+
+services:
+   database_fhe:
+     build: ./conf_db/
+     image: alyssontkd/mysql:5.7
+     container_name: 'database-mysql-fhe'
+     #image: mariadb:latest
+     volumes:
+        - /var/docker/fhe/database/mysql/conf.d:/etc/mysql/conf.d
+        - /var/docker/fhe/database/mysql/mysql.conf.d:/etc/mysql/mysql.conf.d
+        - /var/docker/fhe/database/mysql/data:/var/lib/mysql
+        - /var/docker/fhe/database/mysql/log:/var/log/
+     #restart: always
+     command: mysqld --sql_mode=""
+     expose:
+        - "3306"
+     ports:
+        - "3307:3306"
+     environment:
+       MYSQL_ROOT_PASSWORD: mysql12345678
+       MYSQL_DATABASE: bdfhe_wordpress
+       MYSQL_USER: user_fhe
+       MYSQL_PASSWORD: mysql12345678
+     networks:
+        - wordpress-fhe-network
+        
+   wordpress_fhe:
+     depends_on:
+       - database_fhe
+     image: wordpress:latest
+     container_name: 'wordpress-fhe'
+     ports:
+       - "8001:80"
+       - "8443:443"
+       #- "80:80"
+     #restart: always
+     volumes:
+       - /var/docker/fhe/wordpress_fhe/wp-content/:/var/www/html/wp-content/
+       - /var/docker/fhe/wordpress_fhe/logs/php/:/var/log/php/
+     environment:
+        #VIRTUAL_HOST: app1.acthosti.com.br
+        #VIRTUAL_PORT: 8001
+        WORDPRESS_DB_HOST: database-mysql-fhe
+        WORDPRESS_DB_USER: root
+        WORDPRESS_DB_PASSWORD: mysql12345678
+        WORDPRESS_DB_NAME: bdfhe_wordpress
+     networks:
+        - wordpress-fhe-network
+        
+networks:
+  wordpress-fhe-network:

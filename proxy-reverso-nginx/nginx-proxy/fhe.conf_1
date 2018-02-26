@@ -1,0 +1,12 @@
+upstream app_1 {
+	server 127.0.0.1:8001;
+}
+
+server {
+	listen       app1.acthosti.com.br:80;
+	server_name  app1.acthosti.com.br;
+
+	location / {
+		proxy_pass http://app_1;
+	}
+}
